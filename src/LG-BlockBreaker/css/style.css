@@ -1,0 +1,74 @@
+/*
+目的：
+    - Canvas のレイアウト（中央寄せ/背景色）
+    - HUD / コントロールの配置と可読性向上
+注意：
+    - ゲーム内オブジェクト（ボール/パドル/ブロック）の見た目は JS 描画で決める
+*/
+
+:root {
+    /* テーマカラー（後で調整しやすいように変数化） */
+    --bg: #0f1115;
+    --fg: #e6edf3;
+    --accent: #49f;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+}
+
+.container{
+    display: grid;
+    place-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 0;
+}
+
+#game {
+    /* Canvas の実サイズは HTML 属性、表示スケールは CSS */
+    width: min(90vw, 480px);
+    height: auto;
+    border: 1px solid #222;
+    background: #111;
+    /* ゲームプレイ背景 */
+    image-rendering: pixelated;
+    /* レトロ風 */
+}
+
+.hud,
+.controls {
+    width: min(90vw, 480px);
+    display: flex;
+    gap: .75rem;
+    justify-content: space-between;
+    margin: 1rem;
+    font-variant-numeric: tabular-nums;
+    /* スコアの桁ズレ防止 */
+}
+
+.controls {
+    justify-content: center;
+}
+
+.controls button {
+    padding: .5rem .75rem;
+    background: #1a1f2a;
+    color: var(--fg);
+    border: 1px solid #2a3142;
+    border-radius: .5rem;
+    cursor: pointer;
+}
+
+.controls button:hover {
+    border-color: var(--accent);
+}

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <title>LG Block Breaker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--
+    目的：
+      - ゲーム用の <canvas> と UI（スコア、ライフ、ボタン）を配置する
+      - JS モジュールを読み込むだけ。ロジックは game.js 側
+    ポイント：
+      - CSS は style.css に分離
+      - スクリプトは type="module" で ES Modules を使う
+  -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- HUD：スコア・残機・ステージ名など -->
+        <div class="hud">
+            <!-- スコア表示（数値更新は game.js） -->
+            <div id="score">SCORE: 000000</div>
+            <!-- ライフ表示（♥♥♥ 的な表示でもOK） -->
+            <div id="lives">LIVES: 3</div>
+            <!-- ステージ名やメッセージ -->
+            <div id="msg"></div>
+        </div>
+
+        <!-- ゲーム領域：Canvas。解像度と表示サイズは CSS で管理 -->
+        <canvas id="game" width="480" height="640">
+            <!-- Canvas 非対応ブラウザへのフォールバック文言（最低限） -->
+            このゲームを遊ぶには Canvas 対応ブラウザが必要です
+        </canvas>
+
+        
+        <!-- コントロールUI：スタート/リスタート、ポーズ -->
+        <div class="controls">
+            <button id="btnStart">START</button>
+            <button id="btnPause">PAUSE</button>
+            <button id="btnRestart">RESTART</button>
+        </div>
+    </div>
+    
+    <!-- エントリポイント：ここから全てが始まる -->
+    <script type="module" src="js/game.js"></script>
+</body>
+
+</html>
