@@ -16,13 +16,6 @@
         - 生存ブロックのみ矩形描画（影や光沢は後で）
     */
 
-    // constructor(cols, rows, tileW, tileH, offsetX, offsetY, layout) { ... }
-    // forEachAlive(cb) { /* 生きてるブロックに対して処理 */ }
-    // worldRectOf(col, row) { /* ブロックの世界座標矩形を返す（衝突で使用） */ }
-    // hit(col, row) { /* ダメージ処理。スコアは呼び出し元で加算 */ }
-    // remaining() { /* 残数 */ }
-    // draw(ctx) { /* 描画 */ }
-
 export class Bricks {
   /**
    * @param {number} cols 列数
@@ -31,14 +24,17 @@ export class Bricks {
    * @param {number} tileH 1ブロックの高さ
    * @param {number} offsetX 左端の描画開始X
    * @param {number} offsetY 上端の描画開始Y
+   * @param {number} sidePadding 左右の隙間
    */
-  constructor(cols, rows, tileW, tileH, offsetX, offsetY) {
+  constructor(cols, rows, tileW, tileH, offsetX, offsetY, sidePadding) {
     this.cols = cols;
     this.rows = rows;
     this.tileW = tileW;
     this.tileH = tileH;
     this.offsetX = offsetX;
     this.offsetY = offsetY;
+    this.sidePadding = sidePadding;
+    
 
     // 2D配列 grid[row][col] にブロック情報を格納
     // alive=true のとき描画＆当たり判定の対象
@@ -78,7 +74,7 @@ export class Bricks {
     };
   }
 
-  // ヒットで破壊（今回はHP1想定）
+  // ヒットで破壊
   hit(c, r) {
     const b = this.grid[r][c];
     if (!b || !b.alive) return false;

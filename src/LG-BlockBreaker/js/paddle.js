@@ -4,19 +4,6 @@
 import { clamp } from './utils.js';
 
 export class Paddle {
-    /* 設計メモ
-      - 状態：
-        - x, y（中心 or 左上のどちらで持つかは統一）/ width / height
-        - vx（速度） / speed（一定速度で移動）
-        - bounds：画面外に出ないよう制限
-      - 入力：
-        - マウス移動：x を直接追従（スムージングは後で）
-        - タッチ移動：同上
-        - キー押下：左右で加速（オプション）
-      - 当たり判定：
-        - Ball との AABB（Axis-Aligned Bounding Box）で判定
-        - 反射角：ヒット位置によって角度を変える（中心ヒットは水平、端ヒットで角度大）
-    */
 
     constructor(x, y, w, h, bounds) {
     // 位置（xは中心）、サイズ

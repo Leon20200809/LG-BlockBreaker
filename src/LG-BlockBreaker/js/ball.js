@@ -5,20 +5,6 @@
 import { clamp } from './utils.js';
 
 export class Ball {
-    /* 設計メモ
-      - 状態：
-        - x, y（中心）/ r（半径）
-        - vx, vy（速度）
-        - speed（基準速度、難易度で上げる）
-        - isLaunched（発射済みか）
-      - 動作：
-        - launch(angle, speed)：タイトル/準備中からの発射
-        - 壁反射：左右で vx 反転、上下で vy 反転
-        - 画面下に落下：ライフ減少 → ボール/パドルを初期位置へ reset
-      - 当たり判定：
-        - パドル：collision.js に委譲（ヒット位置で角度変更）
-        - ブロック：collision.js に委譲（破壊/反射）
-    */
 
   constructor(x, y, r, bounds) {
     this.x = x;

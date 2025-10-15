@@ -15,12 +15,28 @@ import { Bricks } from './bricks.js';
 import { Collision } from './collision.js';
 import * as U from './utils.js';
 
-// TODO: 構造スケッチ
+// メインクラス
 class Game {
+
+  
   constructor(canvas) {
     // Canvasと描画コンテキスト
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
+
+    // スコア表示
+    this.score = 0;
+    this.scoreEl = document.getElementById('score-display');
+
+    // 定義を定数でまとめておく
+    this.states = {
+      TITLE: 'title',
+      READY: 'ready',
+      PLAYING: 'playing',
+      PAUSED: 'paused',
+      CLEAR: 'clear',
+      GAMEOVER: 'gameover',
+    };
 
     // 画面サイズ（DPR対応は後でutilsに切り出す）
     this.width = canvas.width;
@@ -30,8 +46,9 @@ class Game {
     this._last = performance.now();
     this._running = false;
 
-    // 状態（今日はほぼ使わない）
-    this.state = 'title'; // title | ready | playing | paused | clear | gameover
+    // 状態
+    this.state = this.states.TITLE;
+    console.log(this.state);
   }
 
   init() {
@@ -51,15 +68,17 @@ class Game {
     // ボールの初期位置
     this.ball = new Ball(this.width / 2, this.height / 2, 8, bounds);
     this.ball.stickToPaddle(this.paddle); // ← 準備状態に入れる
-    this.state = 'ready';
+    this.state = this.states.READY;
+    console.log(this.state);
 
     // --- 発射入力（Canvasクリック/タップ） ---
     this._onCanvasClick = () => {
-      if (this.state === 'ready') {
+      if (this.state === this.states.READY) {
         // 角度は固定でもランダムでもOK。ここでは -45〜-135 をランダムにしてみる。
         const angle = -45 - Math.random() * 90; // 上向きの扇形にばらける
         this.ball.launch(angle);
-        this.state = 'playing';
+        this.state = this.states.PLAYING;
+        console.log(this.state);
       }
     };
     this.canvas.addEventListener('click', this._onCanvasClick);
@@ -67,24 +86,29 @@ class Game {
     // --- キーボード（Spaceで発射） ---
     this._onKeyDown = (e) => {
       if (e.key === ' ' || e.code === 'Space') {
-        if (this.state === 'ready') {
+        if (this.state === this.states.READY) {
           this.ball.launch(-60); // キー操作は固定角度でも扱いやすい
-          this.state = 'playing';
+          this.state = this.states.PLAYING;
+          console.log(this.state);
         }
       }
     };
     window.addEventListener('keydown', this._onKeyDown);
 
+
+
     // ステージ初期化（Bricks 生成）
     // ブロック：列×行とタイルサイズ
-    const cols = 10;
+    const cols = 8;
     const rows = 6;
-    const tileW = Math.floor(this.width / cols);
+    const sidePadding = 80;
+    const offsetX = Math.floor(sidePadding / 2);
+    const offsetY = 90; // ちょい下げて見やすく
+    const drawWidth = this.width - sidePadding;
+    const tileW = Math.floor(drawWidth / cols);
     const tileH = 24;
-    const offsetX = 0;
-    const offsetY = 60; // ちょい下げて見やすく
 
-    this.bricks = new Bricks(cols, rows, tileW, tileH, offsetX, offsetY);
+    this.bricks = new Bricks(cols, rows, tileW, tileH, offsetX, offsetY, sidePadding);
 
     // スコアなど
     this.score = 0;
@@ -99,6 +123,25 @@ class Game {
     this._running = true;
     this._last = performance.now();
     requestAnimationFrame(this._loop.bind(this));
+  }
+
+  togglePause(){
+    console.log('before:', this.state);
+
+    if (this.state === this.states.PLAYING) {
+      // DT止める
+      this.state = this.states.PAUSED;
+      // 停止時刻を記録
+      this.pauseAt = performance.now();
+
+    } else {
+      // DT停止を解除
+      this.state = this.states.PLAYING;
+      // 復帰時のdt爆増を防ぐ
+      this.lastTime = performance.now();
+    }
+
+    console.log('after :', this.state);
   }
 
   _loop(now) {
@@ -117,15 +160,16 @@ class Game {
   }
 
   update(dt) {
-    // 今日の時点では何もしない
-    // TODO: 次フェーズで paddle.update(dt), ball.update(dt) などを呼ぶ
+    // PLAYING 以外は呼ばれない前提でも二重防御
+    if (this.state !== this.states.PLAYING) return;
+
     // パドル更新
     if (this.paddle) this.paddle.update(dt);
 
     // ボール更新　下以外の壁の衝突処理はボールJS
     // 発射前はボールをパドルに吸着させ続ける（追従）
     if (this.ball) {
-      if (this.state === 'ready' && this.paddle) {
+      if (this.state === this.states.READY && this.paddle) {
         this.ball.stickToPaddle(this.paddle);
       } else {
         this.ball.update(dt);
@@ -133,14 +177,16 @@ class Game {
     }
 
     // パドル/ブロック衝突 → スコア加算/ブロック破壊/反射
-    if (this.ball && this.paddle && this.state === 'playing') {
+    if (this.ball && this.paddle && this.state === this.states.PLAYING) {
       Collision.ballWithPaddle(this.ball, this.paddle);
     }
 
-    if (this.state === 'playing' && this.ball && this.bricks) {
+    if (this.state === this.states.PLAYING && this.ball && this.bricks) {
       Collision.ballWithBricks(this.ball, this.bricks, (_c, _r, brick) => {
-        // ここで加点やエフェクト
+        // ここで加点やエフェクト HUD テキスト描画（Canvas or DOM）
         this.score += brick.score ?? 50;
+        this.scoreEl.textContent = `SCORE: ${String(this.score).padStart(6, "0")}`;
+
         // 難易度上げ：ヒット毎にちょっとスピードUPしたいならここで
         // const s = Math.hypot(this.ball.vx, this.ball.vy) * 1.02;
         // const ang = Math.atan2(this.ball.vy, this.ball.vx);
@@ -150,7 +196,7 @@ class Game {
 
       // クリア判定
       if (this.bricks.remaining() === 0) {
-        this.state = 'clear';
+        this.state = this.states.CLEAR;
       }
     }
 
@@ -172,17 +218,23 @@ class Game {
 
     // ボールの描画更新
     if (this.ball) this.ball.draw(ctx);
-    
-    // HUD テキスト描画（Canvas or DOM）
-    ctx.fillStyle = '#9ad';
-    ctx.font = '14px monospace';
-    ctx.fillText(`SCORE: ${String(this.score ?? 0).padStart(6, '0')}`, 12, 20);
 
     // ヒント（準備中のみ）
-    if (this.state === 'ready') {
+    if (this.state === this.states.READY) {
       ctx.fillStyle = '#9ad';
       ctx.font = '14px monospace';
-      ctx.fillText('クリック or Space で発射', 200, 380);
+      ctx.textAlign = 'center';  // 横方向の基準を中央に
+      ctx.textBaseline = 'middle'; // 縦方向の基準を中央に
+      ctx.fillText('クリック or Space で発射', this.width / 2, this.height / 2);
+    }
+
+    if (this.state === this.states.PAUSED) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+      ctx.fillRect(0, 0, this.width, this.height);
+      ctx.fillStyle = '#fff';
+      ctx.font = '24px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('PAUSED', this.width / 2, this.height / 2);
     }
   }
 
@@ -206,11 +258,13 @@ class Game {
     // DOM 参照（Canvas と HUD）
     const canvas = document.getElementById('game');
     const btnStart = document.getElementById('btnStart');
+    const btnPause = document.getElementById('btnPause');
 
     const game = new Game(canvas);
     game.init(); 
 
     if (btnStart) btnStart.addEventListener('click', () => game.start());
+    if (btnPause) btnPause.addEventListener('click', () => game.togglePause());
     // - コンテキストを確保
     // - 画面リサイズ対応（将来）
     // - DPR（Device Pixel Ratio）対応は必要に応じて U.fitCanvas() などで

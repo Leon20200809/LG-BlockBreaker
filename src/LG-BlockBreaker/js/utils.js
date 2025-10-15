@@ -13,6 +13,4 @@
 */
 
 export const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
-// export function clamp(...) { /* 実装は最後に */ }
-// export function fitCanvasToDPR(...) { /* 実装は最後に */ }
-// … 必要に応じて追加
+

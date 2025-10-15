@@ -1,26 +1,5 @@
 // @file collision.js
 // 目的：衝突判定と応答（反射）を集約するユニット。
-// API：Collision.checkBallWalls(ball, bounds) / checkBallPaddle(ball, paddle)
-//      / checkBallBricks(ball, bricks, onHit)
-// @file collision.js
-// * 設計メモ
-//       - 壁判定：
-//         - 左右・上での反射、下はライフ消費フラグを返す
-//       - パドル判定：
-//         - AABB or 円-矩形 の簡易判定
-//         - 接触位置に応じた反射角（normalized hit = (ball.x - paddle.centerX)/paddle.width）
-//       - ブロック判定：
-//         - 円-矩形の接触面で反射軸を決定（X/Y を反転）
-//         - 1フレームで複数ヒットする場合は優先度（最も近い/単発）を決める
-//       - 返り値：
-//         - 反射後の速度、ヒット数、スコア加算量などを呼び出し元へ返す
-//     */
-
-    // checkBallWalls(ball, bounds) { /* 反射/落下検出 */ }
-    // checkBallPaddle(ball, paddle) { /* 反射角の決定 */ }
-    // checkBallBricks(ball, bricks, onHit) {
-    //   /* 各ブロックに対して接触を検査。ヒット時は onHit(col,row,brick) を呼ぶ */
-    // }
 
 import { clamp } from './utils.js';
 
