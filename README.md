@@ -2,6 +2,11 @@
 
 ![screenshot](./screenshots/gameplay.png)
 
+## 🕹️ Live Demo
+
+**Play now:** https://lazygenius.dev/wp-content/uploads/LG-BlockBreaker/
+
+
 **Vanilla JavaScript製ブロック崩し（自作物理エンジン）**
 
 ゲームエンジン・物理処理・状態管理を**すべて純粋なJavaScriptで自作**したサンプル。  
